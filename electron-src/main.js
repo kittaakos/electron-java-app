@@ -1,5 +1,34 @@
 const {app, BrowserWindow, Menu, MenuItem} = require('electron');
 
+const isWindows = (function _isWindows() {
+    if (typeof navigator !== 'undefined') {
+        if (navigator.userAgent && navigator.userAgent.indexOf('Windows') >= 0) {
+            return true;
+        }
+    }
+    if (typeof process !== 'undefined') {
+        return (process.platform === 'win32');
+    }
+    return false;
+})();
+
+function createServerProcess() {
+    const childProcess = require('child_process');
+    const cwd = './electron-vaadin/bin';
+    if (isWindows) {
+        return childProcess.spawn('cmd.exe', ['/c', 'electron-vaadin.bat'], { cwd });
+    } else {
+        const path = require('path').resolve(cwd, 'electron-vaadin');
+        require('fs').chmodSync(path, '777');
+        return childProcess.execFile(path, (err, stdout, stderr) => {
+            if (err) {
+                console.error(stderr);
+                throw err;
+            }
+        });
+    }
+}
+
 let mainWindow = null;
 let serverProcess = null;
 
@@ -25,12 +54,7 @@ app.on('window-all-closed', function () {
 });
 
 app.on('ready', function () {
-    serverProcess = require('child_process')
-        .spawn('cmd.exe', ['/c', 'electron-vaadin.bat'],
-            {
-                cwd: './electron-vaadin/bin'
-            });
-
+    serverProcess = createServerProcess();
     serverProcess.stdout.on('data', function (data) {
         console.log('Server: ' + data);
     });
