@@ -51,11 +51,14 @@ __Note:__ These steps now are relevant to Windows only. You can find the OS X st
 ### Try it on OS X
 
 ```
-cd electron-src/ \
+mkdir tmp \
+&& cd tmp \
+&& git clone https://github.com/kittaakos/electron-java-app.git \
+&& cd electron-java-app/electron-src \
 && npm install \
 && cd .. \
 && chmod a+x ./gradlew \
 && ./gradlew installDist \
 && chmod a+x ./electron-app-debug.sh \
-&& ./electron-app-debug
+&& ./electron-app-debug.sh
 ```
